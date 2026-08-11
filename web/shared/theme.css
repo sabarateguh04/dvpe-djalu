@@ -82,6 +82,10 @@ button, input, textarea, select {
   border: 1px solid #fecaca;
 }
 
+/* Card section title - used by every card in both apps. */
+.card-title { font-weight: 700; font-size: 14.5px; color: var(--dvpe-gray-900); margin-bottom: 12px; }
+.card-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 10px; }
+
 /* Small pill-shaped filter/dropdown trigger button - used by both apps
    (dashboard's region/date filters, portal's language switcher), so it
    lives here rather than being duplicated (and drifting) per app. */

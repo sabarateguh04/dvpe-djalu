@@ -7,7 +7,14 @@ import { viewBox, indonesiaPath, markers } from './indonesiaMapData.js';
 // to the browser) with a risk-heat glow layer over a few reference cities.
 function IndonesiaMap() {
   return (
-    <svg viewBox={`0 0 ${viewBox.width} ${viewBox.height}`} className="riskmap-svg" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Peta kerawanan Indonesia">
+    // preserveAspectRatio="slice" (not the default "meet") - "meet" shrinks
+    // the map to fit inside the box, which can letterbox with visible gaps
+    // whenever the card's actual aspect ratio doesn't match the map's own
+    // (e.g. at the dashboard's 80% default zoom, where breakpoints and
+    // available card width shift). "slice" scales the map to fully COVER
+    // the box instead (like background-size:cover / object-fit:cover),
+    // cropping any excess rather than ever leaving a gap.
+    <svg viewBox={`0 0 ${viewBox.width} ${viewBox.height}`} className="riskmap-svg" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Peta kerawanan Indonesia">
       <defs>
         <linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#dbeafe" />

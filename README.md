@@ -136,6 +136,10 @@ terminating TLS in front of port 4002 for any non-localhost deployment.
 
 ## Running with PM2
 
+> Deploying to a fresh server? **[DEPLOY.md](./DEPLOY.md)** is the
+> straight-through, copy-paste version of this section: clone → install →
+> configure → build → `pm2 start` → survive-a-reboot.
+
 [PM2](https://pm2.keymetrics.io/) keeps `dvpe-server` running, restarts it on
 crash, and can bring it back up on machine reboot. A `logs/` folder is
 created next to `server/` for its output.

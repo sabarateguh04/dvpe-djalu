@@ -14,21 +14,31 @@ html { zoom: 0.8; }
 /* ---- Shell layout ---- */
 .dash-shell { display: flex; min-height: 100vh; }
 
+/* Outer: no fixed height, so align-items:stretch (the .dash-shell flex
+   default) makes it match the tallest sibling (.dash-main) - i.e. the
+   sidebar's dark background always spans the FULL page length, not just
+   one screen's worth. */
 .dash-sidebar {
   width: 240px;
   flex-shrink: 0;
   background: #14152b;
-  color: #e5e7eb;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
   transition: width 0.15s ease;
 }
 .dash-sidebar.collapsed { width: 68px; }
+
+/* Inner: this is what actually sticks to the viewport and holds the
+   visible logo/nav/help content, independent of how tall the outer box
+   ends up being. */
+.dash-sidebar-inner {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  color: #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
 .dash-sidebar.collapsed .dash-nav-item { justify-content: center; padding: 10px 0; }
 .dash-sidebar.collapsed .dash-brand { justify-content: center; padding: 20px 0 16px; }
 .dash-sidebar.collapsed .dash-help { padding: 11px 0; }
@@ -139,8 +149,10 @@ html { zoom: 0.8; }
 @media (max-width: 900px) { .two-col, .three-col { grid-template-columns: 1fr; } }
 
 .pad { padding: 18px 20px; }
-.card-title { font-weight: 700; font-size: 14.5px; margin-bottom: 12px; }
-.card-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 10px; }
+/* .card-title / .card-title-row now live in shared/theme.css - portal never
+   had its own copy of the base rule, only its .center/.upper modifiers,
+   which is why its card titles rendered with no deliberate weight/size at
+   all (inconsistent with every other card). */
 .card-footer-right { display: flex; justify-content: flex-end; margin-top: 10px; }
 .link-sm { font-size: 12.5px; color: var(--dvpe-purple-600); font-weight: 600; text-decoration: none; white-space: nowrap; }
 .link-sm:hover { text-decoration: underline; }
@@ -333,7 +345,19 @@ html { zoom: 0.8; }
 .mono { font-family: 'Cascadia Code', Consolas, monospace; font-size: 12px; }
 
 /* ---- Login ---- */
-.login-shell { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top, var(--dvpe-indigo-700), var(--dvpe-indigo-900)); padding: 20px; }
+/* position:fixed + inset:0 instead of min-height:100vh - guaranteed to
+   cover the exact viewport regardless of `zoom` (min-height:100vh combined
+   with the dashboard's html{zoom:0.8} could leave a gap at the bottom,
+   since it depends on `vh` resolving perfectly against a zoomed layout
+   viewport; fixed positioning has no such dependency, it just IS the
+   viewport). overflow:auto so a login card taller than a very short window
+   still scrolls instead of clipping. */
+.login-shell {
+  position: fixed; inset: 0; overflow: auto;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at top, var(--dvpe-indigo-700), var(--dvpe-indigo-900));
+  padding: 20px;
+}
 .login-card { width: 100%; max-width: 400px; padding: 28px; }
 .login-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
 .login-brand-title { font-weight: 700; font-size: 16px; color: var(--dvpe-gray-900); }

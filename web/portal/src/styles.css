@@ -1,11 +1,18 @@
 .portal-shell { display: flex; min-height: 100vh; }
 
-.portal-sidebar {
-  width: 232px; flex-shrink: 0; background: #14152b; color: #e5e7eb;
-  display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0;
-  overflow-y: auto; overflow-x: hidden; transition: width 0.15s ease;
-}
+/* Outer: no fixed height, so align-items:stretch (the .portal-shell flex
+   default) makes it match the tallest sibling (.portal-main) - the dark
+   background always spans the full page length rather than stopping after
+   one screen's worth on pages taller than the viewport. */
+.portal-sidebar { width: 232px; flex-shrink: 0; background: #14152b; transition: width 0.15s ease; }
 .portal-sidebar.collapsed { width: 68px; }
+
+/* Inner: this is what actually sticks to the viewport and holds the
+   visible logo/nav/panic-box content. */
+.portal-sidebar-inner {
+  position: sticky; top: 0; height: 100vh; color: #e5e7eb;
+  display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
+}
 .portal-sidebar.collapsed .portal-nav-item { justify-content: center; padding: 10px 0; }
 .portal-sidebar.collapsed .portal-brand { justify-content: center; padding: 20px 0 16px; }
 .portal-sidebar.collapsed .portal-panic-box { padding: 10px 0; display: flex; justify-content: center; }

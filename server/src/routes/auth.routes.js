@@ -63,12 +63,27 @@ router.post('/logout', (req, res) => {
 });
 
 router.get('/session', (req, res) => {
+  // Re-reads the full user record rather than trusting the JWT payload's
+  // own fields, so this always returns the exact same shape as /login
+  // ({ username, displayName, title, role, mustChangePassword }) - a
+  // previous version returned a differently-shaped object here (missing
+  // displayName/title entirely), which made the logged-in user's name
+  // disappear from the topbar on every page refresh even though the
+  // session itself was still valid.
   const read = (area) => {
     const token = req.cookies?.[COOKIE_NAMES[area]];
     if (!token) return null;
     try {
       const payload = verifyToken(token);
-      return { username: payload.sub, role: payload.role, name: payload.name };
+      const record = findUser(area, payload.sub);
+      if (!record) return null;
+      return {
+        username: record.username,
+        displayName: record.displayName,
+        title: record.title,
+        role: record.role,
+        mustChangePassword: record.mustChangePassword,
+      };
     } catch {
       return null;
     }
