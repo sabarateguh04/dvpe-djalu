@@ -36,11 +36,11 @@ app.get('/api/health', (req, res) => res.json({ ok: true, env: config.nodeEnv })
 
 app.use('/api', notFoundHandler);
 
-const proxy = attachFrontend(app);
+attachFrontend(app);
 
 app.use(errorHandler);
 
-const server = app.listen(config.port, () => {
+app.listen(config.port, () => {
   logger.info(`DVPE server listening on http://localhost:${config.port} (${config.nodeEnv})`);
   logger.info(`  Dashboard: http://localhost:${config.port}/dashboard  (login: ${users.dashboard.username} / ${config.demo.dashboard.password})`);
   logger.info(`  Portal:    http://localhost:${config.port}/portal     (login: ${users.portal.username} / ${config.demo.portal.password})`);
@@ -48,9 +48,3 @@ const server = app.listen(config.port, () => {
     logger.warn('Demo credentials are active. Do not expose this server beyond localhost/your team without changing them.');
   }
 });
-
-// Wire Vite HMR websocket proxying (dev only - attachFrontend returns null
-// in production since no proxy is used there).
-if (proxy) {
-  server.on('upgrade', proxy.upgrade);
-}

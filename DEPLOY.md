@@ -4,6 +4,10 @@ Straight-through steps to get a fresh server running this app on port 4002
 under PM2. For architecture/security background see `README.md` — this file
 is just the copy-paste path.
 
+There is **no build step** — the frontend is plain HTML/CSS/JS served
+directly, so this is shorter than a typical Node app deploy: clone, install,
+configure, start.
+
 ## 0. Prerequisites (once per server)
 
 ```bash
@@ -24,9 +28,6 @@ cd dvpe-djalu
 ```bash
 npm install
 ```
-
-(This installs the root, `server/`, and `web/` workspaces together in one
-step.)
 
 ## 3. Configure
 
@@ -65,23 +66,13 @@ HTTPS_ENABLED=false
 
 Without this, `NODE_ENV=production` assumes HTTPS is in front of it: the
 session cookie gets marked `Secure` (browsers then refuse to send it back
-over plain HTTP - login silently "does nothing"), and the CSP forces the
-JS/CSS bundle to load over `https://`, which doesn't exist yet - the page
-loads with a correct `<title>` but a **blank white body**, since the script
-never actually loads. Once you do put TLS in front (see the note at the
+over plain HTTP - login silently "does nothing"), and the CSP forces every
+page's JS to load over `https://`, which doesn't exist yet - the page loads
+with a correct `<title>` but a **blank white body**, since the scripts
+never actually load. Once you do put TLS in front (see the note at the
 bottom of this file), remove this line again.
 
-## 4. Build the frontend
-
-```bash
-npm run build
-```
-
-This builds both SPAs into `web/dist/`. The server serves this directly —
-PM2 does not build anything for you, so **re-run this after every future
-`git pull`** that touches `web/`, then `pm2 restart dvpe-server`.
-
-## 5. Start with PM2
+## 4. Start with PM2
 
 ```bash
 pm2 start ecosystem.config.js
@@ -105,7 +96,7 @@ If the server has a firewall, open port 4002 (or, better, put a reverse
 proxy with TLS in front of it and only expose 443 — see the note at the
 bottom).
 
-## 6. Make it survive a reboot
+## 5. Make it survive a reboot
 
 ```bash
 pm2 save          # snapshots the current process list
@@ -121,7 +112,7 @@ come back automatically on reboot.
 
 ```bash
 pm2 logs dvpe-server        # tail logs
-pm2 restart dvpe-server     # after `git pull` + `npm install` + `npm run build`
+pm2 restart dvpe-server     # after `git pull`-ing new server code
 pm2 stop dvpe-server
 pm2 delete dvpe-server
 pm2 monit                    # live CPU/memory
@@ -133,17 +124,62 @@ pm2 monit                    # live CPU/memory
 cd dvpe-djalu
 git pull
 npm install          # only needed if package.json changed
-npm run build
 pm2 restart dvpe-server
 ```
 
+No build/compile step to remember — since `server/public/*.html` and `*.js`
+are plain files served as-is, a `git pull` alone is enough for any frontend
+change to take effect on the next `pm2 restart`.
+
+## Troubleshooting: it's not reachable from outside the server
+
+Work through these in order - each one has ruled out a real issue during
+this app's own deployment before:
+
+1. **Is the process actually running and listening?**
+   ```bash
+   pm2 status
+   curl -i http://127.0.0.1:4002/api/health
+   ```
+2. **Is it bound to all interfaces, not just localhost?**
+   ```bash
+   ss -tlnp | grep 4002
+   ```
+   Want to see `0.0.0.0:4002` / `*:4002`, not `127.0.0.1:4002`.
+3. **Check the OS firewall directly** (a control panel's "open port" toggle
+   doesn't always mean what you think):
+   ```bash
+   sudo ufw status verbose        # Ubuntu/Debian
+   sudo firewall-cmd --list-all   # CentOS/AlmaLinux etc.
+   ```
+   If **both** `ufw` and `firewalld` are active on the same box (happens
+   more than you'd expect on panel-managed servers like aaPanel), the port
+   needs to be allowed in **both**, not just one.
+4. **Your cloud provider's security group** — a separate layer outside the
+   OS entirely (AWS/Alibaba Cloud/Tencent Cloud/DigitalOcean/etc. all have
+   one, usually called "Security Group" or "Firewall Rules" in their
+   console). Opening the port in `ufw`/`firewalld` does nothing here; it
+   needs its own explicit rule for TCP 4002.
+5. **More than one process/clone on the same port.** If you've deployed
+   this more than once on the same server (e.g. a leftover clone from an
+   earlier attempt), only one process can actually hold port 4002 -
+   whichever bound first "wins" and keeps serving old code indefinitely,
+   no matter how many times you `git pull` and restart the *other* one.
+   Confirm which one you're actually talking to:
+   ```bash
+   PID=$(ss -tlnp | grep 4002 | grep -oP 'pid=\K[0-9]+')
+   readlink /proc/$PID/cwd   # does this match the folder you're editing?
+   ```
+
 ## Note on HTTPS / reverse proxy
 
-In production (`NODE_ENV=production`), session cookies are marked `Secure`,
-which browsers only send over HTTPS. Running plain `http://<server>:4002`
-directly works for quick testing, but for anything real, put nginx/Caddy/
-Traefik in front terminating TLS and proxying to `127.0.0.1:4002`, then
-open only 443 externally. Minimal nginx example:
+Once `HTTPS_ENABLED=true` (the default whenever `NODE_ENV=production`),
+session cookies are marked `Secure`, which browsers only send over HTTPS.
+Running plain `http://<server>:4002` directly (with `HTTPS_ENABLED=false`,
+per step 3) works for quick testing, but for anything real, put nginx/Caddy/
+Traefik in front terminating TLS and proxying to `127.0.0.1:4002`, remove
+that `HTTPS_ENABLED=false` line, and open only 443 externally. Minimal
+nginx example:
 
 ```nginx
 server {

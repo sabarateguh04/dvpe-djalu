@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Masuk - DVPE Dashboard</title>
+    <link rel="stylesheet" href="/shared/theme.css" />
+    <link rel="stylesheet" href="/dashboard/dashboard.css" />
+  </head>
+  <body>
+    <div class="login-shell">
+      <div class="login-card dvpe-card">
+        <div class="login-brand">
+          <div class="dash-brand-mark" style="width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--dvpe-purple-600),var(--dvpe-blue-500));color:#fff;">🛡️</div>
+          <div>
+            <div class="login-brand-title">DVPE Dashboard</div>
+            <div class="login-brand-sub">Akses internal - Penyidik &amp; Petugas</div>
+          </div>
+        </div>
+
+        <div class="dvpe-alert dvpe-alert-info" style="margin-bottom:16px">
+          Mockup demo - gunakan kredensial: <strong>admin / admin</strong>
+        </div>
+
+        <form id="loginForm">
+          <label class="field-label">Username</label>
+          <input class="dvpe-input" id="username" autocomplete="username" required />
+          <label class="field-label" style="margin-top:12px">Password</label>
+          <input class="dvpe-input" id="password" type="password" autocomplete="current-password" required />
+
+          <div id="errorBox" class="dvpe-alert dvpe-alert-error hidden" style="margin-top:12px"></div>
+
+          <button class="dvpe-btn dvpe-btn-primary" id="submitBtn" style="width:100%;margin-top:18px">Masuk</button>
+        </form>
+        <div class="login-footnote">Akses gagal berulang akan dikunci sementara untuk mencegah brute force.</div>
+      </div>
+    </div>
+
+    <script type="module" src="/dashboard/login.js"></script>
+  </body>
+</html>

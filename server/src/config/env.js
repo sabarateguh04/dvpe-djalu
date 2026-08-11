@@ -11,7 +11,6 @@ const schema = z.object({
   DASHBOARD_DEMO_PASS: z.string().default('admin'),
   PORTAL_DEMO_USER: z.string().default('portal'),
   PORTAL_DEMO_PASS: z.string().default('portal'),
-  VITE_DEV_SERVER: z.string().default('http://127.0.0.1:5173'),
   // Unset by default -> falls back to NODE_ENV=production. Set explicitly
   // to 'false' when running production mode directly over plain HTTP (no
   // reverse-proxy TLS termination yet) - otherwise Secure cookies never get
@@ -60,5 +59,4 @@ export const config = {
     dashboard: { username: env.DASHBOARD_DEMO_USER, password: env.DASHBOARD_DEMO_PASS },
     portal: { username: env.PORTAL_DEMO_USER, password: env.PORTAL_DEMO_PASS },
   },
-  viteDevServer: env.VITE_DEV_SERVER,
 };
