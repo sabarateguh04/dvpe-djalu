@@ -1,0 +1,346 @@
+/* A website cannot set the browser's actual zoom control (no such API
+   exists, by design - that's the user's own setting). `zoom` is the
+   closest real equivalent: it rescales the whole page's rendering the
+   same way manually zooming out would, including how media-query
+   breakpoints see the viewport (so the extra breathing room this buys
+   automatically clears the responsive breakpoints below, rather than
+   fighting them). Scoped to just this document (dashboard/index.html is
+   its own separate page from portal), applied on body/html rather than a
+   nested container so fixed-position elements (the AI widget) stay
+   correctly placed. Supported by Chromium and Firefox 126+; unsupported
+   browsers just silently ignore it and render at normal 100%. */
+html { zoom: 0.8; }
+
+/* ---- Shell layout ---- */
+.dash-shell { display: flex; min-height: 100vh; }
+
+.dash-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: #14152b;
+  color: #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.15s ease;
+}
+.dash-sidebar.collapsed { width: 68px; }
+.dash-sidebar.collapsed .dash-nav-item { justify-content: center; padding: 10px 0; }
+.dash-sidebar.collapsed .dash-brand { justify-content: center; padding: 20px 0 16px; }
+.dash-sidebar.collapsed .dash-help { padding: 11px 0; }
+
+.dash-brand { display: flex; align-items: center; gap: 10px; padding: 20px 18px 16px; }
+.dash-brand-mark {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--dvpe-purple-600), var(--dvpe-blue-500));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.dash-brand-title { font-weight: 700; font-size: 16px; color: #fff; line-height: 1.2; }
+.dash-brand-sub { font-size: 10px; color: #8b8fa3; max-width: 160px; line-height: 1.3; }
+
+.dash-nav { flex: 1; overflow-y: auto; padding: 6px 12px 10px; }
+.dash-nav-group { margin-bottom: 8px; }
+.dash-nav-title { font-size: 10.5px; letter-spacing: 0.07em; color: #6b7080; font-weight: 700; padding: 14px 8px 6px; }
+.dash-nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px; font-size: 13.5px;
+  color: #b4b8c8; text-decoration: none; margin-bottom: 1px;
+}
+.dash-nav-icon { flex-shrink: 0; opacity: 0.85; }
+.dash-nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.dash-nav-item.active { background: linear-gradient(135deg, var(--dvpe-purple-600), var(--dvpe-blue-500)); color: #fff; font-weight: 600; }
+.dash-nav-item.active .dash-nav-icon { opacity: 1; }
+.dash-nav-label { flex: 1; }
+.dash-nav-badge { font-size: 9px; font-weight: 800; background: rgba(255,255,255,0.18); padding: 2px 6px; border-radius: 999px; }
+
+.dash-help {
+  margin: 12px; padding: 11px; text-align: center; border-radius: 10px;
+  background: rgba(255,255,255,0.06); font-size: 13px; color: #cbd0dd;
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.dash-help:hover { background: rgba(255,255,255,0.1); }
+
+.dash-main { flex: 1; min-width: 0; display: flex; flex-direction: column; background: #f8f9fc; }
+
+/* ---- Topbar ---- */
+.dash-topbar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; background: #fff; border-bottom: 1px solid var(--dvpe-gray-200); position: sticky; top: 0; z-index: 5; }
+.dash-sidebar-toggle { flex-shrink: 0; }
+.dash-search { position: relative; flex: 1; max-width: 460px; display: flex; align-items: center; background: var(--dvpe-gray-50); border: 1px solid var(--dvpe-gray-200); border-radius: 10px; padding: 0 10px; height: 40px; }
+.dash-search-icon { color: var(--dvpe-gray-400); flex-shrink: 0; }
+.dash-search input { flex: 1; border: none; background: transparent; outline: none; padding: 0 8px; font-size: 13px; color: var(--dvpe-gray-900); }
+.dash-search-kbd { font-size: 10.5px; color: var(--dvpe-gray-400); border: 1px solid var(--dvpe-gray-200); border-radius: 5px; padding: 2px 6px; background: #fff; flex-shrink: 0; }
+.dash-topbar-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+/* .dash-icon-btn / .dash-icon-badge now live in shared/theme.css */
+.dash-user { position: relative; display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 6px 4px 12px; border-radius: 10px; margin-left: 6px; }
+.dash-user:hover { background: var(--dvpe-gray-50); }
+.dash-user-avatar { width: 34px; height: 34px; border-radius: 999px; background: linear-gradient(135deg, var(--dvpe-purple-600), var(--dvpe-blue-500)); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; }
+.dash-user-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+.dash-user-title { font-size: 11px; color: var(--dvpe-gray-500); line-height: 1.3; }
+.dash-user-menu { position: absolute; right: 0; top: 48px; background: #fff; border: 1px solid var(--dvpe-gray-200); border-radius: 10px; box-shadow: var(--dvpe-shadow); padding: 8px; z-index: 10; min-width: 120px; }
+
+.dash-banner { margin: 12px 24px 0; }
+.dash-content { padding: 22px 24px 44px; }
+
+/* ---- Dashboard grid ---- */
+.dash-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 18px; align-items: start; }
+.dash-grid-main { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.dash-grid-side {
+  display: flex; flex-direction: column; gap: 18px;
+  position: sticky; top: 86px; align-self: start;
+  max-height: calc(100vh - 106px); overflow-y: auto;
+}
+/* Stacks well before the nested two-col cards below would otherwise get
+   squeezed into an uncomfortably narrow track (this is a viewport
+   breakpoint, not a container query, so it errs generous - a 240px sidebar
+   plus a 320px side column already eats ~560px before content starts). */
+/* Only stack the side column (and drop its sticky behavior - sticky makes
+   no sense once it's no longer beside the scrolling content) on genuinely
+   narrow/tablet widths. The two-col cards inside dash-grid-main no longer
+   need the side column to give way (case-flow is a wrap-safe grid now, see
+   CaseFlow.jsx), so this can stay narrow and the AI Assistant card stays
+   pinned in view at normal laptop widths (1280px+). */
+@media (max-width: 1024px) { .dash-grid { grid-template-columns: 1fr; } .dash-grid-side { position: static; max-height: none; } }
+
+.greeting-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.greeting h1 { font-size: 23px; margin: 0 0 4px; font-weight: 700; }
+.greeting p { margin: 0; color: var(--dvpe-gray-500); font-size: 13.5px; }
+.greeting-filters { display: flex; gap: 10px; }
+/* .filter-pill itself now lives in shared/theme.css (both apps use it) */
+
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+@media (max-width: 800px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+.stat-card { border-radius: 16px; padding: 16px 18px; border: 1px solid; }
+.stat-purple { background: #f3effe; border-color: #e2d7fb; }
+.stat-blue { background: #e9f1fe; border-color: #cfe1fc; }
+.stat-green { background: #e8f8f1; border-color: #c9efdc; }
+.stat-orange { background: #fdf1e6; border-color: #fbe0bf; }
+.stat-row { display: flex; align-items: center; justify-content: space-between; }
+.stat-label { font-size: 12.5px; font-weight: 600; color: var(--dvpe-gray-700); }
+.stat-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+.stat-purple .stat-icon { background: var(--dvpe-purple-500); }
+.stat-blue .stat-icon { background: var(--dvpe-blue-500); }
+.stat-green .stat-icon { background: #10b981; }
+.stat-orange .stat-icon { background: #f59e0b; }
+.stat-value { font-size: 28px; font-weight: 800; margin-top: 8px; color: var(--dvpe-gray-900); }
+.stat-delta { margin-top: 6px; font-size: 11.5px; color: #006300; font-weight: 700; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+/* min-width:0 on every grid cell - without it a grid item never shrinks
+   below its content's max-content width, which would force cards (and the
+   whole page) wider rather than letting overflow-x:auto (case-flow, tables)
+   engage inside them. This is what actually fixes the "nabrak" collision. */
+.two-col > *, .three-col > * { min-width: 0; }
+@media (max-width: 900px) { .two-col, .three-col { grid-template-columns: 1fr; } }
+
+.pad { padding: 18px 20px; }
+.card-title { font-weight: 700; font-size: 14.5px; margin-bottom: 12px; }
+.card-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 10px; }
+.card-footer-right { display: flex; justify-content: flex-end; margin-top: 10px; }
+.link-sm { font-size: 12.5px; color: var(--dvpe-purple-600); font-weight: 600; text-decoration: none; white-space: nowrap; }
+.link-sm:hover { text-decoration: underline; }
+
+.map-legend { display: flex; gap: 12px; font-size: 11.5px; color: var(--dvpe-gray-500); }
+.map-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.map-legend .dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
+
+.list-card { display: flex; flex-direction: column; }
+.list-card-body { flex: 1; margin-bottom: 8px; }
+
+/* Icon rows (Pengingat Tugas / Notifikasi Sistem / Layanan Terdekat).
+   The icon is a fixed-size flex sibling that never shrinks; the text side
+   is a separate min-width:0 column so long strings truncate (title/name
+   rows) or wrap cleanly on their own line (notification descriptions)
+   instead of two flex children fighting over one line's width, which is
+   what produced the previous "acak-acakan" jagged/misaligned rows. */
+.icon-row { display: flex; align-items: flex-start; gap: 9px; padding: 9px 0; border-bottom: 1px solid var(--dvpe-gray-100); }
+.icon-row:last-child { border-bottom: none; }
+.icon-row-icon {
+  width: 24px; height: 24px; border-radius: 7px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.icon-row-icon.tone-purple { background: #f3effe; color: #6d28d9; }
+.icon-row-icon.tone-red { background: #fdeded; color: #dc2626; }
+.icon-row-icon.tone-blue { background: #e9f1fe; color: #1d4ed8; }
+.icon-row-icon.tone-green { background: #e8f8f1; color: #059669; }
+
+/* single-line variant: Pengingat Tugas / Layanan Terdekat */
+.icon-row-title-line { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.icon-row-title-trunc { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; }
+.icon-row-time { flex-shrink: 0; font-size: 11px; white-space: nowrap; }
+
+/* stacked variant: Notifikasi Sistem */
+.icon-row-block { flex: 1; min-width: 0; }
+.icon-row-title { font-size: 12.5px; font-weight: 700; }
+.icon-row-desc { font-size: 11.5px; color: var(--dvpe-gray-700); margin-top: 2px; line-height: 1.4; }
+.icon-row-block .icon-row-time { display: block; margin-top: 4px; font-size: 10.5px; }
+.text-muted { color: var(--dvpe-gray-500); }
+.text-danger { color: var(--dvpe-red-500); font-weight: 600; }
+.small { font-size: 11.5px; }
+
+.quick-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.quick-action { display: flex; align-items: center; gap: 8px; border: none; border-radius: 10px; padding: 12px; text-align: left; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.quick-action.full { width: 100%; }
+.qa-icon { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: rgba(255,255,255,0.6); flex-shrink: 0; }
+.quick-action.purple { background: #f3effe; color: #6d28d9; }
+.quick-action.purple .qa-icon { background: #e2d7fb; }
+.quick-action.red { background: #fdeded; color: #dc2626; }
+.quick-action.red .qa-icon { background: #fad2d2; }
+.quick-action.blue { background: #e9f1fe; color: #1d4ed8; }
+.quick-action.blue .qa-icon { background: #cfe1fc; }
+.quick-action.violet { background: #f3effe; color: #7c3aed; }
+.quick-action.violet .qa-icon { background: #e2d7fb; }
+.quick-action.green { background: #e8f8f1; color: #059669; }
+.quick-action.green .qa-icon { background: #c9efdc; }
+
+/* Fixed to the viewport corner - not just sticky-within-column - so it
+   stays put through any amount of page scrolling, per request. Taken out
+   of the dash-grid-side flex flow entirely (position:fixed doesn't
+   reserve space in its parent), it just floats on top of everything else. */
+.ai-card {
+  position: fixed; right: 24px; bottom: 24px; width: 280px; z-index: 40;
+  border-radius: 16px; padding: 18px;
+  background: linear-gradient(135deg, var(--dvpe-purple-600), var(--dvpe-indigo-700));
+  color: #fff; box-shadow: 0 12px 32px rgba(20, 21, 43, 0.35);
+}
+@media (max-width: 640px) { .ai-card { left: 16px; right: 16px; width: auto; bottom: 16px; } }
+.ai-card-close {
+  position: absolute; top: 10px; right: 10px; width: 22px; height: 22px;
+  border: none; border-radius: 999px; background: rgba(255,255,255,0.16); color: #fff;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.ai-card-close:hover { background: rgba(255,255,255,0.28); }
+
+/* Collapsed state: a small round bubble in the same corner, so the widget
+   can be dismissed instead of permanently covering content underneath it. */
+.ai-fab {
+  position: fixed; right: 24px; bottom: 24px; z-index: 40;
+  width: 52px; height: 52px; border-radius: 999px; border: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--dvpe-purple-600), var(--dvpe-indigo-700));
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 12px 32px rgba(20, 21, 43, 0.35);
+}
+.ai-fab:hover { filter: brightness(1.08); }
+@media (max-width: 640px) { .ai-fab { right: 16px; bottom: 16px; } }
+.ai-card-avatar { width: 34px; height: 34px; border-radius: 999px; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+.ai-card-title { font-weight: 700; font-size: 14.5px; }
+.ai-sub { font-size: 12px; opacity: 0.85; margin-top: 3px; }
+.ai-card-btn { width: 100%; margin-top: 14px; background: rgba(255,255,255,0.16); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+.ai-card-btn:hover { background: rgba(255,255,255,0.24); }
+
+.severity-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 3px 9px; border-radius: 6px; font-size: 10px; font-weight: 800;
+  letter-spacing: 0.02em; color: #fff; white-space: nowrap; flex-shrink: 0;
+}
+
+.priority-list { display: flex; flex-direction: column; }
+.priority-row {
+  position: relative;
+  padding: 11px 68px 11px 4px; /* right padding reserves room for the absolutely-positioned "ago" label */
+  border-bottom: 1px solid var(--dvpe-gray-100);
+}
+.priority-row:last-child { border-bottom: none; }
+.priority-id-line { display: flex; align-items: center; gap: 8px; }
+.priority-id {
+  font-weight: 700; font-size: 12.5px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+}
+.priority-meta { font-size: 11.5px; color: var(--dvpe-gray-700); margin-top: 4px; }
+.priority-loc { font-size: 11px; color: var(--dvpe-gray-500); margin-top: 2px; }
+.priority-ago {
+  position: absolute; top: 12px; right: 4px;
+  font-size: 10.5px; color: var(--dvpe-gray-400); white-space: nowrap;
+  display: flex; align-items: center; gap: 1px;
+}
+
+/* ---- Risk map card ---- */
+.riskmap-canvas {
+  position: relative; height: 240px; border-radius: 12px; overflow: hidden; margin-bottom: 10px;
+  border: 1px solid var(--dvpe-gray-200);
+}
+.riskmap-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.riskmap-zoom { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: var(--dvpe-shadow); z-index: 2; }
+.riskmap-zoom button { border: none; background: #fff; width: 28px; height: 28px; cursor: pointer; border-bottom: 1px solid var(--dvpe-gray-100); display: flex; align-items: center; justify-content: center; color: var(--dvpe-gray-700); }
+.riskmap-zoom button:last-child { border-bottom: none; }
+.riskmap-popup { position: absolute; left: 12px; bottom: 12px; width: 210px; background: #fff; border-radius: 10px; padding: 12px; box-shadow: var(--dvpe-shadow); z-index: 2; }
+.riskmap-popup-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12.5px; }
+.riskmap-bar-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; font-size: 11px; }
+.riskmap-bar-label { width: 52px; color: var(--dvpe-gray-700); flex-shrink: 0; }
+.riskmap-bar-track { flex: 1; height: 5px; background: var(--dvpe-gray-100); border-radius: 999px; overflow: hidden; }
+.riskmap-bar-fill { height: 100%; background: linear-gradient(90deg, #2a78d6, #eb6834); border-radius: 999px; }
+.riskmap-bar-value { width: 26px; text-align: right; font-weight: 600; font-size: 11px; }
+.riskmap-detail-link { display: inline-flex; align-items: center; gap: 5px; }
+
+/* ---- Trend chart ---- */
+.trend-chart { position: relative; }
+.trend-svg { width: 100%; height: 210px; }
+.trend-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; font-size: 12px; color: var(--dvpe-gray-700); }
+.trend-legend-item { display: flex; align-items: center; gap: 5px; }
+.trend-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; flex-shrink: 0; }
+.trend-tooltip { position: absolute; top: 8px; right: 8px; background: #0b0b0b; color: #fff; border-radius: 8px; padding: 8px 10px; font-size: 11.5px; pointer-events: none; }
+.trend-tooltip-title { font-weight: 700; margin-bottom: 4px; }
+.trend-tooltip-row { display: flex; align-items: center; gap: 5px; }
+
+/* ---- Donut chart ---- */
+.donut-wrap { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.donut-legend { flex: 1; min-width: 190px; }
+.donut-legend-row { display: flex; align-items: center; gap: 8px; padding: 6px 6px; border-radius: 8px; font-size: 12.5px; }
+.donut-legend-row.hover { background: var(--dvpe-gray-50); }
+.donut-legend-label { flex: 1; }
+.donut-legend-value { color: var(--dvpe-gray-500); font-size: 11.5px; }
+
+/* ---- Case flow stepper ----
+   Full-width, evenly spaced row (justify-content:space-between) with one
+   continuous dashed line threaded behind the dots, matching the reference
+   design. Steps never shrink (flex-shrink:0); if a card is ever too narrow
+   to fit all six at natural size, the row scrolls horizontally within its
+   own card (overflow-x:auto) instead of compressing the fixed-size icon
+   circles below their own size - that compression is what caused the
+   circles to visually overlap ("nabrak") in an earlier pass. min-width:0
+   on the parent grid cells (see .two-col > *) is what lets that scroll
+   engage instead of the whole card being forced wider. */
+.case-flow { position: relative; display: flex; justify-content: space-between; gap: 8px; overflow-x: auto; padding: 4px 0; }
+.case-flow::before {
+  content: '';
+  position: absolute;
+  top: 20px; /* 4px padding-top + half of the 32px dot */
+  left: 38px; /* half a step's width - centers on the first dot */
+  right: 38px;
+  border-top: 2px dashed var(--dvpe-gray-300, #cbd5e1);
+  z-index: 0;
+}
+.case-flow-step { display: flex; flex-direction: column; align-items: center; text-align: center; width: 76px; flex-shrink: 0; }
+.case-flow-dot {
+  width: 32px; height: 32px; border-radius: 999px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  position: relative; z-index: 1; box-shadow: 0 0 0 4px #fff;
+}
+.case-flow-dot.active { width: 38px; height: 38px; box-shadow: 0 0 0 4px #fff, 0 0 0 6px rgba(59, 130, 246, 0.25); }
+.case-flow-label { font-size: 11px; font-weight: 600; margin-top: 8px; line-height: 1.25; }
+.case-flow-time { font-size: 10px; color: var(--dvpe-gray-400); }
+
+/* ---- Table ---- */
+.table-scroll { overflow-x: auto; }
+.dvpe-table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 13px; }
+.dvpe-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--dvpe-gray-500); padding: 8px 10px; border-bottom: 1px solid var(--dvpe-gray-200); }
+.dvpe-table td { padding: 10px; border-bottom: 1px solid var(--dvpe-gray-100); }
+.mono { font-family: 'Cascadia Code', Consolas, monospace; font-size: 12px; }
+
+/* ---- Login ---- */
+.login-shell { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top, var(--dvpe-indigo-700), var(--dvpe-indigo-900)); padding: 20px; }
+.login-card { width: 100%; max-width: 400px; padding: 28px; }
+.login-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.login-brand-title { font-weight: 700; font-size: 16px; color: var(--dvpe-gray-900); }
+.login-brand-sub { font-size: 11.5px; color: var(--dvpe-gray-500); }
+.login-footnote { margin-top: 14px; font-size: 11.5px; color: var(--dvpe-gray-500); text-align: center; }
+.field-label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 4px; }
+
+/* ---- Placeholder ---- */
+.placeholder-card { text-align: center; padding: 60px 20px; }
+.placeholder-icon { font-size: 34px; margin-bottom: 10px; }

@@ -1,0 +1,135 @@
+:root {
+  --dvpe-indigo-900: #1e1b4b;
+  --dvpe-indigo-800: #201c4f;
+  --dvpe-indigo-700: #312e81;
+  --dvpe-purple-600: #7c3aed;
+  --dvpe-purple-500: #8b5cf6;
+  --dvpe-blue-500: #3b82f6;
+  --dvpe-red-500: #ef4444;
+  --dvpe-orange-500: #f59e0b;
+  --dvpe-green-500: #10b981;
+  --dvpe-gray-50: #f8fafc;
+  --dvpe-gray-100: #f1f5f9;
+  --dvpe-gray-200: #e2e8f0;
+  --dvpe-gray-400: #94a3b8;
+  --dvpe-gray-500: #64748b;
+  --dvpe-gray-700: #334155;
+  --dvpe-gray-900: #0f172a;
+  --dvpe-radius: 14px;
+  --dvpe-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 8px rgba(15, 23, 42, 0.06);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--dvpe-gray-100);
+  color: var(--dvpe-gray-900);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* wide inner content (tables, the case-flow stepper) scrolls in its own container instead of the page */
+}
+
+a { color: inherit; }
+
+button, input, textarea, select {
+  font-family: inherit;
+}
+
+.dvpe-card {
+  background: #fff;
+  border-radius: var(--dvpe-radius);
+  box-shadow: var(--dvpe-shadow);
+  border: 1px solid var(--dvpe-gray-200);
+}
+
+.dvpe-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.05s ease;
+}
+.dvpe-btn:active { transform: translateY(1px); }
+.dvpe-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.dvpe-btn-primary {
+  background: linear-gradient(135deg, var(--dvpe-purple-600), var(--dvpe-blue-500));
+  color: #fff;
+}
+.dvpe-btn-primary:hover:not(:disabled) { filter: brightness(1.06); }
+
+.dvpe-btn-ghost {
+  background: #fff;
+  color: var(--dvpe-gray-700);
+  border: 1px solid var(--dvpe-gray-200);
+}
+.dvpe-btn-ghost:hover:not(:disabled) { background: var(--dvpe-gray-50); }
+
+.dvpe-btn-danger {
+  background: #fef2f2;
+  color: var(--dvpe-red-500);
+  border: 1px solid #fecaca;
+}
+
+/* Small pill-shaped filter/dropdown trigger button - used by both apps
+   (dashboard's region/date filters, portal's language switcher), so it
+   lives here rather than being duplicated (and drifting) per app. */
+.filter-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--dvpe-gray-200); background: #fff; border-radius: 9px;
+  padding: 9px 14px; font-size: 12.5px; font-weight: 600; color: var(--dvpe-gray-700);
+  cursor: pointer;
+}
+.filter-pill.sm { padding: 5px 10px; font-size: 12px; }
+.filter-pill:hover { background: var(--dvpe-gray-50); }
+
+/* Plain icon button (topbar bell/chat/help, sidebar-collapse toggle) -
+   used by both apps. */
+.dash-icon-btn { position: relative; border: none; background: none; cursor: pointer; color: var(--dvpe-gray-500); padding: 8px; border-radius: 8px; display: flex; flex-shrink: 0; }
+.dash-icon-btn:hover { background: var(--dvpe-gray-50); color: var(--dvpe-gray-900); }
+.dash-icon-badge { position: absolute; top: 3px; right: 3px; background: var(--dvpe-red-500); color: #fff; font-size: 9.5px; font-weight: 700; border-radius: 999px; min-width: 15px; height: 15px; display: flex; align-items: center; justify-content: center; padding: 0 3px; }
+
+.dvpe-input, .dvpe-select, .dvpe-textarea {
+  width: 100%;
+  border: 1px solid var(--dvpe-gray-200);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: #fff;
+  color: var(--dvpe-gray-900);
+}
+.dvpe-input:focus, .dvpe-select:focus, .dvpe-textarea:focus {
+  outline: 2px solid var(--dvpe-purple-500);
+  outline-offset: 1px;
+  border-color: var(--dvpe-purple-500);
+}
+
+.dvpe-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.dvpe-alert {
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  border: 1px solid transparent;
+}
+.dvpe-alert-warn { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+.dvpe-alert-error { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+.dvpe-alert-info { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
