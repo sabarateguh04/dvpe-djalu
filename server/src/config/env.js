@@ -12,6 +12,13 @@ const schema = z.object({
   PORTAL_DEMO_USER: z.string().default('portal'),
   PORTAL_DEMO_PASS: z.string().default('portal'),
   VITE_DEV_SERVER: z.string().default('http://127.0.0.1:5173'),
+  // Unset by default -> falls back to NODE_ENV=production. Set explicitly
+  // to 'false' when running production mode directly over plain HTTP (no
+  // reverse-proxy TLS termination yet) - otherwise Secure cookies never get
+  // sent by the browser (silent login failure) and CSP's
+  // upgrade-insecure-requests forces the JS/CSS bundle to fetch over
+  // https://, which doesn't exist yet, producing a blank page.
+  HTTPS_ENABLED: z.enum(['true', 'false']).optional(),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -41,6 +48,10 @@ export const config = {
   isProd: env.NODE_ENV === 'production',
   isDev: env.NODE_ENV === 'development',
   nodeEnv: env.NODE_ENV,
+  // Governs Secure cookies + CSP's upgrade-insecure-requests - see
+  // HTTPS_ENABLED comment above. Independent from isProd so a plain-HTTP
+  // production deployment can opt out without weakening anything else.
+  httpsEnabled: env.HTTPS_ENABLED != null ? env.HTTPS_ENABLED === 'true' : env.NODE_ENV === 'production',
   port: env.PORT,
   corsOrigins: env.CORS_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean),
   jwtSecret: env.JWT_SECRET,

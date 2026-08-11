@@ -22,7 +22,12 @@ export const helmetMiddleware = helmet({
           baseUri: ["'self'"],
           frameAncestors: ["'self'"],
           formAction: ["'self'"],
-          upgradeInsecureRequests: [],
+          // Only when actually behind TLS (config.httpsEnabled) - this
+          // directive makes the browser silently rewrite every sub-resource
+          // request (the JS/CSS bundle) to https://. On a plain-HTTP
+          // deployment with no TLS listener, that upgraded request just
+          // fails, the bundle never loads, and the page renders blank.
+          ...(config.httpsEnabled ? { upgradeInsecureRequests: [] } : {}),
         },
       }
     : false,

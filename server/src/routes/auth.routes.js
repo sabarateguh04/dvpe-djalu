@@ -41,7 +41,7 @@ router.post('/login', loginLimiter, validateBody(loginSchema), (req, res) => {
 
   recordSuccess(area, username);
   const token = signToken({ sub: record.username, role: record.role, area, name: record.displayName });
-  res.cookie(COOKIE_NAMES[area], token, cookieOptions(config.isProd));
+  res.cookie(COOKIE_NAMES[area], token, cookieOptions(config.httpsEnabled));
   recordAudit({ actor: record.username, action: 'login_success', area, ip });
 
   res.json({

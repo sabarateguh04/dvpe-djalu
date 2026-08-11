@@ -56,6 +56,21 @@ reason to change them — see the comments in `server/.env.example`.
 > `DASHBOARD_DEMO_USER`/`_PASS` and `PORTAL_DEMO_USER`/`_PASS` away from
 > `admin`/`admin` and `portal`/`portal` before exposing it.
 
+**If you're accessing this directly over `http://<ip>:4002` (no TLS/reverse
+proxy in front yet)**, also add:
+
+```
+HTTPS_ENABLED=false
+```
+
+Without this, `NODE_ENV=production` assumes HTTPS is in front of it: the
+session cookie gets marked `Secure` (browsers then refuse to send it back
+over plain HTTP - login silently "does nothing"), and the CSP forces the
+JS/CSS bundle to load over `https://`, which doesn't exist yet - the page
+loads with a correct `<title>` but a **blank white body**, since the script
+never actually loads. Once you do put TLS in front (see the note at the
+bottom of this file), remove this line again.
+
 ## 4. Build the frontend
 
 ```bash

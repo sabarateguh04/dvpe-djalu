@@ -11,13 +11,15 @@ export const COOKIE_NAMES = {
 //   which is the primary CSRF defense for this app (no state-changing GET
 //   endpoints, and the only cookie-authenticated writes are same-site fetch
 //   calls made by our own dashboard/portal SPA)
-// - secure: only sent over HTTPS once deployed behind TLS; disabled for
-//   plain-HTTP localhost development
-export function cookieOptions(isProd) {
+// - secure: only sent over HTTPS - pass config.httpsEnabled, NOT config.isProd
+//   directly. A plain-HTTP production deployment (no reverse-proxy TLS yet)
+//   needs this off, or the browser silently refuses to ever send the cookie
+//   back, making login look like it "doesn't work" with no visible error.
+export function cookieOptions(httpsEnabled) {
   return {
     httpOnly: true,
     sameSite: 'strict',
-    secure: isProd,
+    secure: httpsEnabled,
     path: '/',
     maxAge: 8 * 60 * 60 * 1000,
   };
