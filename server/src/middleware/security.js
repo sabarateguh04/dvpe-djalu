@@ -32,6 +32,13 @@ export const helmetMiddleware = helmet({
       }
     : false,
   crossOriginEmbedderPolicy: false,
+  // Both of these are meaningless on plain HTTP - browsers ignore them
+  // outright (logging a console warning in the process, which is all this
+  // was) unless the origin is HTTPS or localhost. Sending them anyway on a
+  // plain-HTTP deployment does nothing but produce confusing warnings, so
+  // only send them once actually behind TLS.
+  crossOriginOpenerPolicy: config.httpsEnabled,
+  hsts: config.httpsEnabled,
 });
 
 // Browser CORS allow-list. Note this has no effect on the Flutter mobile
