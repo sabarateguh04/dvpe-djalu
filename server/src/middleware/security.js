@@ -8,7 +8,14 @@ import { logger } from '../utils/logger.js';
 // websocket) so local development still works; production build serves
 // plain static JS/CSS with no inline script, so the strict policy applies
 // there unmodified.
-export const helmetMiddleware = helmet({
+// Built as a plain object first rather than inlining booleans into the
+// helmet() call - helmet's sub-middleware options accept `false` (disable)
+// or a config object (enable+configure), but do NOT reliably treat a bare
+// `true` as "enable with defaults". Omitting the key entirely is what
+// actually gets helmet's normal enabled-by-default behavior, so the
+// httpsEnabled=true branches below just leave the key out rather than
+// setting it to `true`.
+const helmetOptions = {
   contentSecurityPolicy: config.isProd
     ? {
         directives: {
@@ -32,14 +39,18 @@ export const helmetMiddleware = helmet({
       }
     : false,
   crossOriginEmbedderPolicy: false,
-  // Both of these are meaningless on plain HTTP - browsers ignore them
-  // outright (logging a console warning in the process, which is all this
-  // was) unless the origin is HTTPS or localhost. Sending them anyway on a
-  // plain-HTTP deployment does nothing but produce confusing warnings, so
-  // only send them once actually behind TLS.
-  crossOriginOpenerPolicy: config.httpsEnabled,
-  hsts: config.httpsEnabled,
-});
+};
+
+// Both of these are meaningless on plain HTTP - browsers ignore them
+// outright (logging a console warning in the process) unless the origin is
+// HTTPS or localhost. Only disable them explicitly when NOT behind TLS;
+// otherwise leave the keys out entirely so helmet's normal defaults apply.
+if (!config.httpsEnabled) {
+  helmetOptions.crossOriginOpenerPolicy = false;
+  helmetOptions.hsts = false;
+}
+
+export const helmetMiddleware = helmet(helmetOptions);
 
 // Browser CORS allow-list. Note this has no effect on the Flutter mobile
 // client: native HTTP requests don't send an Origin header and are not
